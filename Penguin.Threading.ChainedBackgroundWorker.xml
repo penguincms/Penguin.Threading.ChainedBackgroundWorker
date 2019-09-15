@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Penguin.Threading.ChainedBackgroundWorker</name>
+    </assembly>
+    <members>
+        <member name="T:Penguin.Threading.ChainedBackgroundWorker">
+            <summary>
+            The simplest way to launch a chained background instance 
+            </summary>
+        </member>
+        <member name="M:Penguin.Threading.ChainedBackgroundWorker.Process``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Creates the first chain link in the processing queue
+            </summary>
+            <typeparam name="T">The IEnumerable type to process</typeparam>
+            <param name="toProcess">The IEnumerable to process</param>
+            <returns>An instance representing the first block in the processing chain</returns>
+        </member>
+        <member name="T:Penguin.Threading.ChainedBackgroundWorker`1">
+            <summary>
+            First instance of a chain link in the processing queue, that processes items iteratively on its own thread and 
+            passes them to the next link
+            </summary>
+            <typeparam name="TArgument">The type of the object to process</typeparam>
+        </member>
+        <member name="P:Penguin.Threading.ChainedBackgroundWorker`1.IsBusy">
+            <summary>
+            Is the link currently processing anything?
+            </summary>
+        </member>
+        <member name="T:Penguin.Threading.ChainedBackgroundWorker`2">
+            <summary>
+            A chain link representing both a source of, and destination to, a type being processed by the chain
+            </summary>
+            <typeparam name="TArgument"></typeparam>
+            <typeparam name="TResult"></typeparam>
+        </member>
+        <member name="P:Penguin.Threading.ChainedBackgroundWorker`2.IsBusy">
+            <summary>
+            Is this link processing anything currently?
+            </summary>
+        </member>
+        <member name="P:Penguin.Threading.ChainedBackgroundWorker`2.IsCompleted">
+            <summary>
+            Has this link (and all parents) finished processing their work?
+            </summary>
+        </member>
+        <member name="M:Penguin.Threading.ChainedBackgroundWorker`2.ContinueWith``1(System.Func{`1,``0})">
+            <summary>
+            Creates and returns another link in the processing chain
+            </summary>
+            <typeparam name="CResult">The output type of this chain link</typeparam>
+            <param name="toRun">The function that gets run on each item passed into this link before it is passed to the next link</param>
+            <returns>The chain link created by this process</returns>
+        </member>
+        <member name="M:Penguin.Threading.ChainedBackgroundWorker`2.ExecuteAsync">
+            <summary>
+            Kicks off the chain link of workers and returns a task whos result will contain the final post-process
+            list
+            </summary>
+            <returns>A task whos result will contain the final post-process list</returns>
+        </member>
+    </members>
+</doc>
