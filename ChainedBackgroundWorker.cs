@@ -74,9 +74,9 @@ namespace Penguin.Threading
     /// <typeparam name="TResult"></typeparam>
     public class ChainedBackgroundWorker<TArgument, TResult> : IChainedBackgroundWorker, IChainedBackgroundWorker<TArgument>
     {
-        TaskCompletionSource<List<TResult>> ResultTask { get; set; }
+        TaskCompletionSource<List<TResult>> ResultTask = new TaskCompletionSource<List<TResult>>();
 
-        List<TResult> Results { get; set; }
+        List<TResult> Results = new List<TResult>();
 
         /// <summary>
         /// Is this link processing anything currently?
@@ -146,9 +146,6 @@ namespace Penguin.Threading
         public Task<List<TResult>> ExecuteAsync()
         {
             this.DoWork();
-
-            ResultTask = new TaskCompletionSource<List<TResult>>();
-            Results = new List<TResult>();
 
             return ResultTask.Task;
         }
