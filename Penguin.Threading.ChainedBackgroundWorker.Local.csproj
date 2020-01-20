@@ -8,4 +8,7 @@
     <RootNamespace>Penguin.Threading.ChainedBackgroundWorker</RootNamespace>
   </PropertyGroup>
   <Import Project="Penguin.Projects.Shared\Penguin.Projects.Shared.csproj" />
+  <ItemGroup>
+    <ProjectReference Include="..\Penguin.Threading.BackgroundWorker\Penguin.Threading.BackgroundWorker.Local.csproj" />
+  </ItemGroup>
 </Project>
