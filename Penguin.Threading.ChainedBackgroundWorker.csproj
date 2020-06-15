@@ -10,6 +10,6 @@
   </PropertyGroup>
   <Import Project="Penguin.Projects.Shared\Penguin.Projects.Shared.csproj" />
   <ItemGroup>
-    <PackageReference Include="Penguin.Threading.BackgroundWorker" Version="1.0.5-T9X9YTC" />
+    <PackageReference Include="Penguin.Threading.BackgroundWorker" Version="1.0.5-T9XWH6X" />
   </ItemGroup>
 </Project>
