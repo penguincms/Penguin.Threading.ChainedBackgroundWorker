@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <PackageProjectUrl>https://github.com/penguincms/Penguin.Threading.ChainedBackgroundWorker</PackageProjectUrl>
-    <Version>1.0.0</Version>
+    <Version>5.0.0</Version>
     <Description>A Generic BackgroundWorker based class designed to chain tasks performed on lists of objects into horizontal queues processed on separate threads</Description>
     <AssemblyName>Penguin.Threading.ChainedBackgroundWorker</AssemblyName>
     <RootNamespace>Penguin.Threading.ChainedBackgroundWorker</RootNamespace>
