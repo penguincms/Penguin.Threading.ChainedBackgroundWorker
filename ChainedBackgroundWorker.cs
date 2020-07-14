@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace Penguin.Threading
 {
     /// <summary>
-    /// The simplest way to launch a chained background instance 
+    /// The simplest way to launch a chained background instance
     /// </summary>
     public static class ChainedBackgroundWorker
     {
@@ -18,9 +18,14 @@ namespace Penguin.Threading
         /// <returns>An instance representing the first block in the processing chain</returns>
         public static ChainedBackgroundWorker<T> Process<T>(IEnumerable<T> toProcess)
         {
+            if (toProcess is null)
+            {
+                throw new ArgumentNullException(nameof(toProcess));
+            }
+
             ConcurrentQueue<T> queue = new ConcurrentQueue<T>();
 
-            foreach(T t in toProcess)
+            foreach (T t in toProcess)
             {
                 queue.Enqueue(t);
             }
@@ -30,7 +35,7 @@ namespace Penguin.Threading
     }
 
     /// <summary>
-    /// First instance of a chain link in the processing queue, that processes items iteratively on its own thread and 
+    /// First instance of a chain link in the processing queue, that processes items iteratively on its own thread and
     /// passes them to the next link
     /// </summary>
     /// <typeparam name="TArgument">The type of the object to process</typeparam>
@@ -62,8 +67,6 @@ namespace Penguin.Threading
             {
                 Child.DoWork();
             }
-
-
         }
     }
 
@@ -74,9 +77,8 @@ namespace Penguin.Threading
     /// <typeparam name="TResult"></typeparam>
     public class ChainedBackgroundWorker<TArgument, TResult> : IChainedBackgroundWorker, IChainedBackgroundWorker<TArgument>
     {
-        TaskCompletionSource<List<TResult>> ResultTask = new TaskCompletionSource<List<TResult>>();
-
-        List<TResult> Results = new List<TResult>();
+        private List<TResult> Results = new List<TResult>();
+        private TaskCompletionSource<List<TResult>> ResultTask = new TaskCompletionSource<List<TResult>>();
 
         /// <summary>
         /// Is this link processing anything currently?
@@ -98,6 +100,17 @@ namespace Penguin.Threading
         public bool IsCompleted { get; set; }
 
         IEnumerable<TArgument> IChainedBackgroundWorker<TArgument>.Queue { get; set; }
+
+        internal IChainedBackgroundWorker<TResult> Child { get; set; }
+
+        internal IChainedBackgroundWorker Parent { get; set; }
+
+        private BackgroundWorker<ConcurrentQueue<TArgument>> InternalWorker { get; set; }
+
+        internal ChainedBackgroundWorker(ConcurrentQueue<TArgument> Source)
+        {
+            (this as IChainedBackgroundWorker<TArgument>).Queue = Source;
+        }
 
         /// <summary>
         /// Creates and returns another link in the processing chain
@@ -126,18 +139,6 @@ namespace Penguin.Threading
             return child;
         }
 
-        internal virtual void DoWork()
-        {
-            if (!Parent.IsBusy && !Parent.IsCompleted)
-            {
-                Parent.DoWork();
-            }
-             
-            InternalWorker.RunWorkerAsync((this as IChainedBackgroundWorker<TArgument>).Queue as ConcurrentQueue<TArgument>);
-        }
-
-        void IChainedBackgroundWorker.DoWork() => DoWork();
-
         /// <summary>
         /// Kicks off the chain link of workers and returns a task whos result will contain the final post-process
         /// list
@@ -150,13 +151,16 @@ namespace Penguin.Threading
             return ResultTask.Task;
         }
 
-        internal IChainedBackgroundWorker<TResult> Child { get; set; }
+        void IChainedBackgroundWorker.DoWork() => DoWork();
 
-        internal IChainedBackgroundWorker Parent { get; set; }
-
-        internal ChainedBackgroundWorker(ConcurrentQueue<TArgument> Source)
+        internal virtual void DoWork()
         {
-            (this as IChainedBackgroundWorker<TArgument>).Queue = Source;
+            if (!Parent.IsBusy && !Parent.IsCompleted)
+            {
+                Parent.DoWork();
+            }
+
+            InternalWorker.RunWorkerAsync((this as IChainedBackgroundWorker<TArgument>).Queue as ConcurrentQueue<TArgument>);
         }
 
         internal void SetFunction(Func<TArgument, TResult> toRun)
@@ -169,7 +173,6 @@ namespace Penguin.Threading
 
                     if (!(Child is null))
                     {
-
                         ((Child as IChainedBackgroundWorker<TResult>).Queue as ConcurrentQueue<TResult>).Enqueue(result);
 
                         if (!Child.IsBusy)
@@ -181,7 +184,6 @@ namespace Penguin.Threading
                     {
                         Results.Add(result);
                     }
-
                 }
 
                 if (Parent.IsCompleted)
@@ -193,7 +195,5 @@ namespace Penguin.Threading
                 Child?.DoWork();
             }); ;
         }
-
-        private BackgroundWorker<ConcurrentQueue<TArgument>> InternalWorker { get; set; }
     }
 }
