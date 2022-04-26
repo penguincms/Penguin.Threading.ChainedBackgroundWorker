@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;net5.0</TargetFrameworks>
     <PackageProjectUrl>https://github.com/PenguinCMS/Penguin.Threading.ChainedBackgroundWorker</PackageProjectUrl>
     <Version>5.0.5</Version>
     <Description>A Generic BackgroundWorker based class designed to chain tasks performed on lists of objects into horizontal queues processed on separate threads</Description>
