@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Penguin.Threading.BackgroundWorker;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -165,7 +166,7 @@ namespace Penguin.Threading
 
         internal void SetFunction(Func<TArgument, TResult> toRun)
         {
-            InternalWorker = BackgroundWorker.Create<ConcurrentQueue<TArgument>>((source, args) =>
+            InternalWorker = Penguin.Threading.BackgroundWorker.BackgroundWorker.Create<ConcurrentQueue<TArgument>>((source, args) =>
             {
                 while (args.TryDequeue(out TArgument next))
                 {
