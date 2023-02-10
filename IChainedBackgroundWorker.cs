@@ -6,6 +6,7 @@ namespace Penguin.Threading
     {
         bool IsBusy { get; set; }
         bool IsCompleted { get; }
+
         void DoWork();
     }
 

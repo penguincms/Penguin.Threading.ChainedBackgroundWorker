@@ -24,7 +24,7 @@ namespace Penguin.Threading
                 throw new ArgumentNullException(nameof(toProcess));
             }
 
-            ConcurrentQueue<T> queue = new ConcurrentQueue<T>();
+            ConcurrentQueue<T> queue = new();
 
             foreach (T t in toProcess)
             {
@@ -78,18 +78,15 @@ namespace Penguin.Threading
     /// <typeparam name="TResult"></typeparam>
     public class ChainedBackgroundWorker<TArgument, TResult> : IChainedBackgroundWorker, IChainedBackgroundWorker<TArgument>
     {
-        private List<TResult> Results = new List<TResult>();
-        private TaskCompletionSource<List<TResult>> ResultTask = new TaskCompletionSource<List<TResult>>();
+        private readonly List<TResult> Results = new();
+        private readonly TaskCompletionSource<List<TResult>> ResultTask = new();
 
         /// <summary>
         /// Is this link processing anything currently?
         /// </summary>
         public virtual bool IsBusy
         {
-            get
-            {
-                return InternalWorker.IsBusy;
-            }
+            get => InternalWorker.IsBusy;
             set
             {
             }
@@ -121,21 +118,14 @@ namespace Penguin.Threading
         /// <returns>The chain link created by this process</returns>
         public ChainedBackgroundWorker<TResult, CResult> ContinueWith<CResult>(Func<TResult, CResult> toRun)
         {
-            ChainedBackgroundWorker<TResult, CResult> child = new ChainedBackgroundWorker<TResult, CResult>(new ConcurrentQueue<TResult>())
+            ChainedBackgroundWorker<TResult, CResult> child = new(new ConcurrentQueue<TResult>())
             {
                 Parent = this
             };
 
             child.SetFunction(toRun);
 
-            if (this.Child is null)
-            {
-                this.Child = child;
-            }
-            else
-            {
-                throw new Exception("This worker already contains a child");
-            }
+            Child = Child is null ? child : throw new Exception("This worker already contains a child");
 
             return child;
         }
@@ -147,12 +137,15 @@ namespace Penguin.Threading
         /// <returns>A task whos result will contain the final post-process list</returns>
         public Task<List<TResult>> ExecuteAsync()
         {
-            this.DoWork();
+            DoWork();
 
             return ResultTask.Task;
         }
 
-        void IChainedBackgroundWorker.DoWork() => DoWork();
+        void IChainedBackgroundWorker.DoWork()
+        {
+            DoWork();
+        }
 
         internal virtual void DoWork()
         {
@@ -161,18 +154,18 @@ namespace Penguin.Threading
                 Parent.DoWork();
             }
 
-            InternalWorker.RunWorkerAsync((this as IChainedBackgroundWorker<TArgument>).Queue as ConcurrentQueue<TArgument>);
+            _ = InternalWorker.RunWorkerAsync((this as IChainedBackgroundWorker<TArgument>).Queue as ConcurrentQueue<TArgument>);
         }
 
         internal void SetFunction(Func<TArgument, TResult> toRun)
         {
-            InternalWorker = Penguin.Threading.BackgroundWorker.BackgroundWorker.Create<ConcurrentQueue<TArgument>>((source, args) =>
+            InternalWorker = BackgroundWorker.BackgroundWorker.Create<ConcurrentQueue<TArgument>>((source, args) =>
             {
                 while (args.TryDequeue(out TArgument next))
                 {
                     TResult result = toRun.Invoke(next);
 
-                    if (!(Child is null))
+                    if (Child is not null)
                     {
                         ((Child as IChainedBackgroundWorker<TResult>).Queue as ConcurrentQueue<TResult>).Enqueue(result);
 
@@ -189,8 +182,8 @@ namespace Penguin.Threading
 
                 if (Parent.IsCompleted)
                 {
-                    this.IsCompleted = true;
-                    ResultTask?.TrySetResult(this.Results);
+                    IsCompleted = true;
+                    _ = (ResultTask?.TrySetResult(Results));
                 }
 
                 Child?.DoWork();

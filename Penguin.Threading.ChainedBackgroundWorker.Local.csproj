@@ -5,7 +5,7 @@
     <Version>5.0.5</Version>
     <Description>A Generic BackgroundWorker based class designed to chain tasks performed on lists of objects into horizontal queues processed on separate threads</Description>
     <AssemblyName>Penguin.Threading.ChainedBackgroundWorker</AssemblyName>
-    <RootNamespace>Penguin.Threading.ChainedBackgroundWorker</RootNamespace>
+    <RootNamespace>Penguin.Threading</RootNamespace>
     <DocumentationFile>Penguin.Threading.ChainedBackgroundWorker.xml</DocumentationFile>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
