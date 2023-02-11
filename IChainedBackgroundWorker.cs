@@ -5,6 +5,7 @@ namespace Penguin.Threading
     internal interface IChainedBackgroundWorker
     {
         bool IsBusy { get; set; }
+
         bool IsCompleted { get; }
 
         void DoWork();
